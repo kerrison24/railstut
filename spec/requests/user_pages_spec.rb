@@ -28,6 +28,17 @@ describe "UserPages" do
       it "should not create a user" do
         expect { click_button submit }.not_to change(User, :count)
       end
+
+      describe "after submission" do
+        let(:user) { FactoryGirl.create(:user) }
+        before { click_button submit }
+
+        it { should have_title('Sign up') }
+        it { should have_content('error') }
+        it { should_not have_title(user.name) }
+        it { should_not have_content('Welcome to the Sample App') }
+        it { should have_selector('div.alert.alert-error')}
+      end
     end
 
     describe "with valid information" do
@@ -36,6 +47,14 @@ describe "UserPages" do
         fill_in "Email", with: "user@example.com"
         fill_in "Password", with: "foobar"
         fill_in "Confirmation", with: "foobar"
+      end
+
+      describe "after saving the user" do
+        before { click_button submit }
+        let(:user) { User.find_by(email: 'user@example.com') }
+
+        it { should have_title(user.name) }
+        it { should have_selector('div.alert.alert-success', text: 'Welcome')}
       end
 
       it "should create a user" do
