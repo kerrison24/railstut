@@ -41,5 +41,29 @@ describe "MicropostPages" do
         expect { click_link "delete" }.to change(Micropost, :count).by(-1)
       end
     end
+
+    describe "as incorrect user" do
+      let(:correct_user) { FactoryGirl.create(:user) }
+      let(:incorrect_user) { FactoryGirl.create(:user) }
+      before do
+        FactoryGirl.create(:micropost, user: correct_user)
+        sign_in incorrect_user
+        visit user_path(correct_user)
+      end
+
+      it { should_not have_link('delete') }
+    end
+  end
+
+  describe "pagination" do
+    before { visit root_path }
+    before(:all) { 30.times { FactoryGirl.create(:micropost) } }
+    after(:all) { User.delete_all }
+
+    it "should list each micropost" do
+      Micropost.paginate(page: 1).each do |micropost|
+        expect(page).to have_selector('li')
+      end
+    end
   end
 end

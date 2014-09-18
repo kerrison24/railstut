@@ -32,6 +32,23 @@ describe "Static pages" do
           expect(page).to have_selector("li##{item.id}", text:item.content)
         end
       end
+
+      describe "sidebar should have micropost count" do
+
+        describe "with 1 micropost" do
+          let(:user_1_micropost) { FactoryGirl.create(:user) }
+          before do
+            FactoryGirl.create(:micropost, user:user_1_micropost, content: "Lorem Ipsum")
+            sign_in user_1_micropost
+            visit root_path
+          end
+          it { should have_content('1 micropost') }
+        end
+
+        describe "with more than 1 micropost" do
+          it { should have_content('2 microposts') }
+        end
+      end
     end
   end
 
